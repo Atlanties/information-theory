@@ -811,4 +811,243 @@ $$
 
 ## Functions of Markov Chain
 
-## 
+- Let $X_1, X_2, \dots, X_n$ be a Markov Chain, and let $Y_i = \phi(X_i)$ be a process each term of which is a function of the corresponding state of the Markov Chain. We need to find out entropy rate of Y $H(\mathcal{Y})$
+
+- Commonly, $Y_i$ *won't* be a Markov Chain, it is a very special case of Hidden Markov Model(HMM)
+
+- Obviously, ${X_i}$ is *stationary* $\Rightarrow$ ${Y_i}$ is stationary
+	$$
+	H(\mathcal{Y}) = \lim_{n\rightarrow \infin}H(Y_n|Y_1, Y_2, \dots, Y_{n-1})
+	$$
+
+- We have to ensure the *convergence* of $H(Y_n|Y_1, Y_2, \dots, Y_{n-1})$
+
+- Solution: using squeeze theorem
+
+- 1. We are going to prove:
+
+	$$
+	H(Y_n|Y_{n-1}, Y_{n-2}, \dots, Y_1, X_1) \le H(\mathcal{Y})\le H(Y_n|Y_1, Y_2, \dots, Y_{n-1})
+	$$
+
+	and 
+	$$
+	\lim_{n\rightarrow\infin}H(Y_n|Y_{n-1}, Y_{n-2}, \dots, Y_1, X_1) = H(\mathcal{Y}) = \lim_{n\rightarrow\infin}H(Y_n|Y_1, Y_2, \dots, Y_{n-1})
+	$$
+
+	2. Prove the first inequality
+
+	$$
+	\begin{aligned}
+	& H(Y_n|Y_{n-1}, Y_{n-2}, \dots, Y_1, X_1)\\
+	&\text{Any Previous R.V. of MC won't change the value of conditional entropy} \\
+	& = H(Y_n|Y_{n-1}, Y_{n-2}, \dots, X_1, Y_1, X_0, \dots, X_{-k}) \\
+	& \le  H(Y_n|Y_{n-1}, Y_{n-2}, \dots, Y_1, Y_0, \dots, Y_{-k}) \\
+	&\text{By stochastic process stationary we have} \\
+	& = H(Y_{n+k+1}| Y_{n+k}, \dots, Y_1) \\
+	&\text{When } \lim_{k\rightarrow \infin} \\
+	& = H(\mathcal{Y})
+	\end{aligned}
+	$$
+
+	3. Prove the right
+
+	$$
+	\begin{aligned}
+	& H(Y_n|Y_1, Y_2, \dots, Y_{n-1}) - H(Y_n|Y_{n-1}, Y_{n-2}, \dots, Y_1, X_1) \\
+	& = I(Y_n; X_1| Y_1, Y_2, \dots, Y_{n-1}) \\
+	& \text{We have } I(X_1; Y_1, Y_2, \dots, Y_n) \le H(X_1) \\
+	& H(X_1) \ge \sum_{i=1}^n I(Y_i; X_1| Y_1, Y_2, \dots, Y_{i-1}) \\
+	& \lim_{n\rightarrow\infin} \sum_{i=1}^n I(Y_i; X_1| Y_1, Y_2, \dots, Y_{i-1}) \le H(X_1) \\
+	& \lim_{n\rightarrow\infin} I(Y_n; X_1| Y_1, Y_2, \dots, Y_{n-1}) \rightarrow 0 \\
+	& \lim_{n\rightarrow\infin} H(Y_n|Y_1, Y_2, \dots, Y_{n-1}) = H(Y_n|Y_{n-1}, Y_{n-2}, \dots, Y_1, X_1)
+	\end{aligned}
+	$$
+
+	
+
+# Data Compression
+
+## Introduction
+
+- **Example**: Morse Code, Gzip
+- **Target**: write a prototype of Gzip
+
+### Examples of Codes
+
+- Let $X$ be a R.V. with following distribution and codeword assignment
+
+$$
+Pr(X=1) = 1/2, codewordC(1) = 0\\
+Pr(X=2) = 1/4, codewordC(1) = 10\\
+Pr(X=3) = 1/8, codewordC(1) = 110\\
+Pr(X=4) = 1/8, codewordC(1) = 111\\
+H(X) = 7/4, L(X) = 7/4
+$$
+
+- Assume that D-ary alphabet is $D=\{0,1,\dots, D-1\}$
+- **Source Code**: for a R.V. $X$ , Source coding will map the range of $X$ $\mathcal{X}$ to $D'$ which is the set of finite-length strings of symbols from a D-ary alphabet. $C(x)$ denotes the *codeword* corresponding to $x$ and $l(x)$ denote the length of $C(x)$
+- **Expected Length**: $L(C) = \sum_{x\in X}p(x)l(x)$
+	1. We want $\min L(C)$
+	2. How to construct such an optimal code?
+
+### Nonsingular Code
+
+- **Nonsingular**: any different events map to different string in $D$
+
+$$
+x\ne x' \Rightarrow C(x) \ne C(x')
+$$
+
+- **Extension**: the extension of a code $C$ is the mapping from finite length strings of $X$ to finite-length strings of D, which is $C(x_1x_2\dots x_n)=C(x_1)C(x_2)\dots C(x_n)$
+
+- **Uniquely Decodable**: if its extension is nonsingular.
+- **Prefix Code**: an instantaneous code is a prefix of any other codeword.
+
+
+
+## Prefix Code
+
+- Tree representation
+	1. Each node has D branches
+	2. Each edge corresponds one of $\{0, 1, \dots, D-1\}$
+	3. For any two code words $c_1, c_2$, the corresponding paths $p_1, p_2$ will not contain each other
+
+- Interval representation
+
+	1.  Each codework $d_1, d_2, \dots, d_n$ can be treated as a D-ary floating number $0.d_1d_2\dots d_n$
+	2.  The left closed and right open interval $[0.d_1d_2\dots d_n, 0.d_1d_2\dots d_n + {1\over D^n})$
+	3. No other codeword is allowed in it and no overlap between intervals
+
+	
+
+## Kraft Inequality
+
+### Definition
+
+- For any instantaneous code(prefix code) over an alphabet of size D, the codeword lengths $l_1, l_2, \dots, l_m$ must satisfy the inequality
+
+$$
+\sum_{i=1}^m D^{-l_i} \le 1
+$$
+
+​		conversely, given a set of codeword lengths that satisfy this inequality, there exists an instantaneous code with these word lengths.
+
+- Proof:
+
+	1. necessary: by counting the subtrees, we have:
+		$$
+		\sum_{i=1}^m D^{l_m - l_i} \le D^{lm} \Rightarrow \sum_{i=1}^m D^{-l_i} \le 1
+		$$
+		
+
+	2. "if": by mathematical induction, if we have got $m-1$ works, then there must at least exist one leaf node for the $l_m$
+
+### Extended Kraft Inequality
+
+- For *any countably infinite set of codewords* that form a prefix code, the codeword lengths satisfy the extended Kraft ineqaulity,
+
+$$
+\sum_{i=1}^\infin D^{-l_i} \le 1
+$$
+
+​		*Conversely*, given any $l_1, l_2, \dots$ satisfying the extended Kraft inequality, we can construct a prefix code with these codeword length.
+
+- Using Interval representation to prove
+
+- We can calculate the Kraft inequality to judge whether a codeword exists or not
+
+
+
+## Optimality of Codes
+
+### Problem
+
+- Kraft inequality gives us a mathematical expression on the existence of prefix code
+- We want minimum expected length
+
+$$
+\min L = \sum p_il_i\\
+\sum D^{-l_i} \le 1
+$$
+
+- Optimization by lagrange 
+
+$$
+min f(X) \\
+s.t. g(X) \le 0
+$$
+
+their gradient vectors are parallel
+$$
+\grad f(X) = \lambda\grad g\\
+\mathcal{L}(X,\lambda) = f(X) + \lambda g \\
+\grad \mathcal{L} = 0
+$$
+
+### Solution
+
+- We are going to solve the lagrange problem"
+	1. $J = \sum p_il_i + \lambda(\sum D^{-l_i} -1)$
+	2. ${\part J \over \part l_i} = p_i - \lambda D^{-l_i}lnD $
+	3. $D^{-l_i} = {p_i \over \lambda lnD}$
+	4. $l_i = -\log_Dp_i$
+- This *nonsingular* choice of codeword lengths yields expected codeword length $l_i^*=-\log_Dp_i$
+- In general, $L^* \ge H_D(X)$
+
+
+
+### Bounds
+
+- We can prove that the optimal code of X would be bounded in $H_D(X) \le L^* \le H_D(X) + 1$
+- It is easily to know that, if any is not integer, we will get the ceiling result, which just plus one.
+- Of course the upper bound obeys the Kraft inequality, as we use mathematical induction prove "if" above
+
+- $\log_D{1\over p_i} \le l_i < \log_D{1\over p_i} + 1 $
+- **Shannon Code**: $l_i = \lceil \log_D {1 \over p_i}\rceil$
+
+### Approach the Limit
+
+- Encode n symbols on $\mathcal{X}$ together, where $\mathcal{X}_i$ are i.i.d $\sim p(x)$
+- The expected length is $L(x_1,x_2, \dots, x_n) = {1\over n}\sum p(x_1, x_2, \dots, x_n) l(x_1, x_2, \dots, x_n)  $
+- Applying the boundary before, we have $H(X_1, X_2, \dots, X_n) \le L(X_1, X_2, \dots, X_n) \le H(X_1, X_2, \dots, X_n) + 1$
+- As they are i.i.d, we have $H(X_1, X_2, \dots, X_n) = nH(X)$, the average length of each one is $H(X) \le L^* \le H(X) + {1\over n}$
+- **Theorem**: The minimum expected codeword length per symbol satisfies $H(X) \le L^* \le H(X) + {1\over n}$, moreover, when $X_1, X_2, \dots ,X_n$ is a *stationary stochastic process*, $L^* \rightarrow H(\mathcal{X})$
+
+### Wrong Code
+
+- If we design the code for wrong distribution $q(x)$, but the real distribution is $p(x)$
+- **Wrong code**: $H(p) + D(p||q) \le E_pl(x) < H(p) + D(p||q) + 1$
+
+### Kraft Inequality For Uniquely Decodable Codes
+
+- **McMillan**: The codework lengths of **any uniquely decodable** D-ary code must satisfies Kraft inequality
+
+- We have 3 facts:
+
+	1.  Using $C^k$ represents the kth extension of  the code
+
+	2.  As the code is uniquely decodable, the $k^{th}$ extension must be nonsigular
+
+	3.  Only $D^n$ different D-ary strings of n, we have the numbers of extension must no more than $D^n$
+
+	4. $$
+		\begin{aligned}
+		(\sum_{x\in\mathcal{X}} D^{-l(x)})^k &= \sum_{x_1\in X}\sum_{x_2\in X}\cdots\sum_{x_k\in X} D^{-l(x_1)}D^{-l(x_2)}\cdots D^{-l(x_k)} \\
+		&= \sum_{x^k\in X^k} D^{-l(x^k)} = \sum_{m=1}^{kl_\max} a(m)D^{-m}\\
+		&\le \sum_{m=1}^{kl_\max} D^m D^{-m} = kl_\max
+		\end{aligned}
+		$$
+
+		$a(m)$ means the numbers of m length code generated by all k codes
+
+
+
+## Huffman coding
+
+## Shannon-Fano-Elias Coding
+
+## Generation of Discrete Distribution
+
+## Universal Source Coding
+
